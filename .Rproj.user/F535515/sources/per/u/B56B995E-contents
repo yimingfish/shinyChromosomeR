@@ -1,0 +1,88 @@
+setwd("E:/Dropbox/work/rice-methylation/RNA-Seq/all_libs/DEG/T1/padj_0.01_fc_4")
+dat <- read.csv("all_T1_DEG_info.csv",head=T,as.is=T)
+
+dt <- dat[dat$is_TE == "TEG",]
+
+dt1 <- dt[grep(">WT_",dt$patn),]
+
+unique(dt1$patn)
+#[1] "cmt3a_T1>WT_T1_3"               "cmt2_3a_T1>WT_T1_3"             "cmt2_3a_3b_drm2_3_T1_2>WT_T1_1"
+#[4] "cmt2_3a_drm2_T1_1>WT_T1_2"      "cmt2_3a_drm2_T1_2>WT_T1_2"      "cmt2_3a_3b_drm2_3_T1_1>WT_T1_1"
+#[7] "cmt3a_drm2_T1>WT_T1_3"          "cmt2_drm2_T1>WT_T1_3"           "drm2_T1>WT_T1_2"               
+#[10] "cmt2_T1>WT_T1_3"
+
+dt1 <- dt1[dt1$patn %in% c("cmt2_3a_3b_drm2_3_T1_1>WT_T1_1","cmt2_3a_3b_drm2_3_T1_2>WT_T1_1"),]
+unique(dt1$patn)
+#[1] "cmt2_3a_3b_drm2_3_T1_2>WT_T1_1" "cmt2_3a_3b_drm2_3_T1_1>WT_T1_1"
+
+#id_list <- table(dt1$id)[which(table(dt1$id)==2)]
+id_list <- table(dt1$id)
+
+exp <- read.csv("all_T1_gene_info.csv",head=T,as.is=T)
+
+unique(exp$patn)
+#[1] "cmt2_3a_3b_drm2_3_T1_1_vs_WT_T1_1" "drm2_T1_vs_WT_T1_2"                "cmt2_3a_drm2_T1_1_vs_WT_T1_2"     
+#[4] "cmt2_3a_drm2_T1_2_vs_WT_T1_2"      "cmt2_drm2_T1_vs_WT_T1_3"           "cmt2_3a_3b_drm2_3_T1_2_vs_WT_T1_1"
+#[7] "cmt2_T1_vs_WT_T1_3"                "cmt3a_T1_vs_WT_T1_3"               "cmt3a_drm2_T1_vs_WT_T1_3"         
+#[10] "cmt2_3a_T1_vs_WT_T1_3"
+
+dt2 <- exp[exp$id %in% names(id_list),]
+dim(dt1)
+#[1] 933  10
+dim(dt2)
+#[1] 5360   10
+
+dt2$patn <- gsub("_vs_WT_T1.*","",dt2$patn)
+dt2$patn <- gsub("_T1","",dt2$patn)
+unique(dt2$patn)
+#[1] "cmt3a_drm2"          "drm2"                "cmt2_drm2"           "cmt2_3a_3b_drm2_3_1" "cmt2_3a_drm2_1"     
+#[6] "cmt2_3a"             "cmt2_3a_3b_drm2_3_2" "cmt2_3a_drm2_2"      "cmt3a"               "cmt2" 
+
+dt2$patn[dt2$patn=="cmt2_3a"] <- "cmt2/3a"
+dt2$patn[dt2$patn=="cmt2_3a_3b_drm2_3_2"] <- "cmt2/3a/3b/drm2/3_2"
+dt2$patn[dt2$patn=="cmt2_3a_drm2_1"] <- "cmt2/3a/drm2_1"
+dt2$patn[dt2$patn=="cmt2_3a_drm2_2"] <- "cmt2/3a/drm2_2"
+dt2$patn[dt2$patn=="cmt2_3a_3b_drm2_3_1"] <- "cmt2/3a/3b/drm2/3_1"
+dt2$patn[dt2$patn=="cmt3a_drm2"] <- "cmt3a/drm2"
+dt2$patn[dt2$patn=="cmt2_drm2"] <- "cmt2/drm2"
+
+unique(dt2$patn)
+#[1] "cmt3a/drm2"          "drm2"                "cmt2/drm2"           "cmt2/3a/3b/drm2/3_1" "cmt2/3a/drm2_1"     
+#[6] "cmt2/3a"             "cmt2/3a/3b/drm2/3_2" "cmt2/3a/drm2_2"      "cmt3a"               "cmt2" 
+
+
+#dt2 <- dt2[!dt2$patn %in% c("cmt2/3a/3b/drm2/3_1","cmt2/3a/3b/drm2/3_2"),]
+#unique(dt2$patn)
+#[1] "cmt3a/drm2"     "drm2"           "cmt2/drm2"      "cmt2/3a/drm2_1" "cmt2/3a"        "cmt2/3a/drm2_2" "cmt3a"         
+#[8] "cmt2"  
+
+dt2$patn <- factor(dt2$patn,levels = c("cmt2","cmt3a","drm2","cmt2/3a","cmt2/drm2","cmt3a/drm2","cmt2/3a/drm2_1",
+                                       "cmt2/3a/drm2_2","cmt2/3a/3b/drm2/3_1","cmt2/3a/3b/drm2/3_2"),ordered = T)
+head(dt2,2)
+#id baseMean log2FoldChange    lfcSE      stat    pvalue      padj       patn  type is_TE
+#1341 LOC_Os01g02380 2.718768       1.273426 1.494926 0.8518322 0.3943072 0.4893336 cmt3a/drm2  vs08   TEG
+#1342 LOC_Os01g02380 1.504496       1.063555 1.779284 0.5977429 0.5500115 0.7915165       drm2 vs010   TEG
+
+
+
+length(which(is.na(dt2$log2FoldChange)))
+#[1] 885
+
+library(ggplot2)
+p <- ggplot() + geom_boxplot(data = dt2, aes(x=patn, y=log2FoldChange, fill=patn), position=position_dodge(width=1), outlier.size = 0.2, outlier.color = "red", notch = F) + 
+  scale_fill_manual(values=c("cmt2"="#0D74BB", "cmt3a"="#FDBE28", "drm2"="#EE302D", "cmt2/3a"="green4", "cmt2/drm2"="cyan", "cmt3a/drm2"="blueviolet", "cmt2/3a/drm2_1"="darksalmon",
+                             "cmt2/3a/drm2_2"="chartreuse", "cmt2/3a/3b/drm2/3_1"="hotpink", "cmt2/3a/3b/drm2/3_2"="coral4"))
+#p <- p + facet_wrap( ~ sRNA_size, scales="free")
+
+p <- p + theme(panel.grid.major=element_blank(),panel.grid.minor=element_blank()) +
+  theme(panel.background=element_rect(fill="white",colour="black")) + theme_classic()
+
+p <- p + xlab("Mutant type") + ylab("TE expression change log2 ratio (mutant/WT)") + ggtitle("TEGs up in cmt2 cmt3a cmt3b drm2 drm3") + 
+  theme(legend.title = element_blank(), axis.text.x = element_text(angle = 60, hjust = 1), axis.text=element_text(size=16, color = "black"), text = element_text(size=19, color="black"), plot.title = element_text(hjust = 0.5))
+p
+
+pdf("T1_TEG_up_boxplot_5_muts_two_rep_union.pdf",height=9,width=14)
+p
+
+dev.off()
+
