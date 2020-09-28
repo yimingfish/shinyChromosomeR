@@ -13,4 +13,4 @@ Installation
 
 Help Manual
 ------------
-[Overview of binQTL](https://github.com/yimingfish/shinyChromosomeR/blob/master/vignettes/shinyChromosomeROverview.pdf)
+[Overview of shinyChromosomeR](https://github.com/yimingfish/shinyChromosomeR/blob/master/vignettes/shinyChromosomeROverview.pdf)
